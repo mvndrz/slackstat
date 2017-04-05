@@ -1,0 +1,16 @@
+{
+  "name": "SlackStat",
+  "version": "1.0.0",
+  "description": "Get stats about Slack usage",
+  "main": "app.js",
+  "dependencies": {
+    "body-parser": "^1.12.2",
+    "express": "^4.12.3",
+    "pg": "6.1.5",
+    "querystring": "^0.2.0",
+    "request": "^2.54.0"
+  },
+  "scripts": {
+    "start": "node app.js"
+  }
+}
