@@ -2,7 +2,7 @@ var pg = require('pg');
 pg.defaults.ssl = true;
 
 var env_var = {
-	db_url: process.env.DATABASE_URL
+  db_url: process.env.DATABASE_URL
 };
 
 var db_client = null;

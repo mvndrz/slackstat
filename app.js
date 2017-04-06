@@ -26,42 +26,42 @@ app.use(bodyParser.json({ type: 'application/vnd.api+json' }));
 
 //Routes
 app.get('/', function(req, res){
-	console.log("got it.")
-	res.send('here!');
+  console.log("got it.")
+  res.send('here!');
 });
 
 app.get('/users', function(req, res){
-	Slack.get_users(function(users) {
-		res.send(users);
-	});
+  Slack.get_users(function(users) {
+    res.send(users);
+  });
 });
 
 
 
 app.get('/channels', function(req, res){
-	Slack.get_channels(function(channels) {
-		res.send(channels);
-	});
+  Slack.get_channels(function(channels) {
+    res.send(channels);
+  });
 });
 
 app.get('/test_add', function(req, res){
-	m = [{
-		user_id: "U4L1234DF",
-		user_name: "Joe Smith",
-		ts: "1491329226.399990",
-		channel_id: "C0BMR1234",
-		channel_name: "build-failures"
-		},
-		{
-		user_id: "U1V04567N",
-		user_name: "Matthew Vanderzee",
-		ts: "1491329182.384970",
-		channel_id: "C0BMR1234",
-		channel_name: "build-failures"
-		}]
-	Db.add_messages( m, function(result) {
-		res.send(result);
-	});
+  m = [{
+    user_id: "U4L1234DF",
+    user_name: "Joe Smith",
+    ts: "1491329226.399990",
+    channel_id: "C0BMR1234",
+    channel_name: "build-failures"
+    },
+    {
+    user_id: "U1V04567N",
+    user_name: "Matthew Vanderzee",
+    ts: "1491329182.384970",
+    channel_id: "C0BMR1234",
+    channel_name: "build-failures"
+    }]
+  Db.add_messages( m, function(result) {
+    res.send(result);
+  });
 });
 
 
@@ -77,9 +77,9 @@ if (!Array.prototype.last){
 app.get(/\/data\/(.+)/, function(req, res){
   var table_name = req.params[0];
 
-	Db.get_data(table_name, function(data) {
-		res.send(data);
-	})
+  Db.get_data(table_name, function(data) {
+    res.send(data);
+  })
 });
 
 
@@ -87,16 +87,16 @@ app.get(/\/data\/(.+)/, function(req, res){
 app.get(/\/check_messages\/(.+)/, function(req, res){
   var channel_name = req.params[0];
 
-	//
-	// need to avoid callback hell here
-	//
-	Slack.get_channels_and_users(function(channels, users) {
-		var channel = channels[channel_name]
+  //
+  // need to avoid callback hell here
+  //
+  Slack.get_channels_and_users(function(channels, users) {
+    var channel = channels[channel_name]
 
-		Slack.get_messages(channel, null, null, users, function(messages) {
-			res.send(messages);
-		})
-	});
+    Slack.get_messages(channel, null, null, users, function(messages) {
+      res.send(messages);
+    })
+  });
 
 });
 
@@ -105,17 +105,17 @@ app.get(/\/check_messages\/(.+)/, function(req, res){
 app.get(/\/load_channel\/(.+)/, function(req, res){
   var channel_name = req.params[0];
 
-	Slack.get_channels_and_users(function(channels, users) {
-		var channel = channels[channel_name]
-		if (!channel) {
-			res.send("invalid channel '"+channel_name+"'")
-		}
+  Slack.get_channels_and_users(function(channels, users) {
+    var channel = channels[channel_name]
+    if (!channel) {
+      res.send("invalid channel '"+channel_name+"'")
+    }
 
-		SlackDb.store_new_messages_for_channel(channel, users, function(msg) {
-			res.send(msg)
-		})
+    SlackDb.store_new_messages_for_channel(channel, users, function(msg) {
+      res.send(msg)
+    })
 
-	});
+  });
 
 });
 
@@ -123,33 +123,33 @@ app.get(/\/load_channel\/(.+)/, function(req, res){
 app.get(/\/load_all_channels/, function(req, res){
   var channel_name = req.params[0];
 
-	Slack.get_channels_and_users(function(channels, users) {
+  Slack.get_channels_and_users(function(channels, users) {
 
-		var results = []
-		channels = Object.values(channels);
+    var results = []
+    channels = Object.values(channels);
 
-		function load_next() {
-			var channel = channels.pop();
-			SlackDb.store_new_messages_for_channel(channel, users, function(msg) {
+    function load_next() {
+      var channel = channels.pop();
+      SlackDb.store_new_messages_for_channel(channel, users, function(msg) {
 
-				results.push(msg);
+        results.push(msg);
 
-				if (channels.length > 0) {
-					load_next();
-				} else {
-					res.send(results)
-				}
-			})
-		}
-		load_next();
+        if (channels.length > 0) {
+          load_next();
+        } else {
+          res.send(results)
+        }
+      })
+    }
+    load_next();
 
 
-	});
+  });
 
 });
 
 
 //Start Server
 app.listen(port, function () {
-	console.log('Listening on port ' + port);
+  console.log('Listening on port ' + port);
 });
