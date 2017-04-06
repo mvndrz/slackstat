@@ -25,6 +25,20 @@ exports.get_data = (table, success, failure) => {
   });
 }
 
+exports.get_channel_min_max_tss = (channel_id, success, failure) => {
+  var query = db_client.query("select min(tss) min_tss, max(tss) max_tss from messages where channel_id = $1;", [channel_id]);
+  query.on("end", function (result) {
+    if (result.rows.length > 0) {
+      success(result.rows[0].min_tss, result.rows[0].max_tss)
+    } else {
+      success(null, null)
+    }
+  }).on("error", function (error) {
+    console.log(error)
+    failure(error)
+  });
+}
+
 exports.add_messages = (messages, success, failure) => {
 
   var column_string = "(channel_id,channel_name,user_id,user_name,ts,tss)";
@@ -56,6 +70,6 @@ exports.add_messages = (messages, success, failure) => {
   }).on("error", function(error) {
     console.log('add_messages error')
     console.log(error)
-    failure(error)
+    if (failure) { failure(error) }
   });
 }

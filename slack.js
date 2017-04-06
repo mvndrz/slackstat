@@ -67,9 +67,8 @@ exports.get_channels_and_users = (success, failure) => {
 
 
 
-exports.get_messages = (channel_id, channel_name, users, success, batch_success) => {
+exports.get_messages = (channel, oldest_ts, latest_ts, users, success, batch_success) => {
 	var messages = [];
-  var oldest_timestamp = null;
   var batch_size = 100;
   var batch_count = -1;
 
@@ -79,38 +78,44 @@ exports.get_messages = (channel_id, channel_name, users, success, batch_success)
         json: true,
         qs: {
           token: env_var.slack_token,
-          channel: channel_id,
+          channel: channel.id,
           count: batch_size,
-					latest: oldest_timestamp
+					latest: latest_ts,
+          oldest: oldest_ts
         }
       },
   		function(error, response, body){
-				console.log("got response")
         if (body.ok) {
-					oldest_timestamp = body.messages.last().ts;
-					batch_count = batch_count-1;
-
           var batch_messages = [];
 
-					body.messages.forEach(function(m) {
+					batch_count = batch_count-1;
 
-					  batch_messages.push({
-							user_id: m.user,
-							user_name: (users[m.user] ? users[m.user].real_name : "unknown"),
-              ts: m.ts,
-							channel_id: channel_id,
-              channel_name: channel_name
-						});
-					});
+          if (body.messages.length <= 0) {
+            latest_ts = 0
+          } else {
+            latest_ts = body.messages.last().ts;
 
-          messages = messages.concat(batch_messages)
+            body.messages.forEach(function(m) {
 
-					console.log(batch_messages.length +
-            " messages retrieved.  Oldest timestamp: "+oldest_timestamp+
-            "  Total: "+messages.length);
+  					  batch_messages.push({
+  							user_id: m.user,
+  							user_name: (users[m.user] ? users[m.user].real_name : "unknown"),
+                ts: m.ts,
+  							channel_id: channel.id,
+                channel_name: channel.name
+  						});
+  					});
 
-          if (batch_success) {
-            batch_success(batch_messages);
+            messages = messages.concat(batch_messages)
+
+  					console.log(batch_messages.length +
+              " messages retrieved.  Oldest timestamp: "+latest_ts+
+              "  Total: "+messages.length);
+
+            if (batch_success) {
+              batch_success(batch_messages);
+            }
+
           }
 
 

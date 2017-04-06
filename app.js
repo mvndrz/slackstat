@@ -5,6 +5,7 @@ var qs = require('querystring');
 
 const Slack = require('./slack.js');
 const Db = require('./db.js');
+const SlackDb = require('./slackdb.js');
 
 //set up heroku environment variables
 var env_var = {
@@ -92,7 +93,7 @@ app.get(/\/check_messages\/(.+)/, function(req, res){
 	Slack.get_channels_and_users(function(channels, users) {
 		var channel = channels[channel_name]
 
-		Slack.get_messages(channel.id, channel.name, users, function(messages) {
+		Slack.get_messages(channel, null, null, users, function(messages) {
 			res.send(messages);
 		})
 	});
@@ -100,26 +101,49 @@ app.get(/\/check_messages\/(.+)/, function(req, res){
 });
 
 
+
 app.get(/\/load_channel\/(.+)/, function(req, res){
   var channel_name = req.params[0];
 
-	//
-	// need to avoid callback hell here
-	//
 	Slack.get_channels_and_users(function(channels, users) {
 		var channel = channels[channel_name]
 		if (!channel) {
 			res.send("invalid channel '"+channel_name+"'")
 		}
 
-		Slack.get_messages(channel.id, channel.name, users, function success(messages) {
-			  res.send("total messages: "+messages.length);
-		  },
-			function batch_success(messages) {
-				Db.add_messages(messages, function(result) {
-				});
-			}
-		)
+		SlackDb.store_new_messages_for_channel(channel, users, function(msg) {
+			res.send(msg)
+		})
+
+	});
+
+});
+
+
+app.get(/\/load_all_channels/, function(req, res){
+  var channel_name = req.params[0];
+
+	Slack.get_channels_and_users(function(channels, users) {
+
+		var results = []
+		channels = Object.values(channels);
+
+		function load_next() {
+			var channel = channels.pop();
+			SlackDb.store_new_messages_for_channel(channel, users, function(msg) {
+
+				results.push(msg);
+
+				if (channels.length > 0) {
+					load_next();
+				} else {
+					res.send(results)
+				}
+			})
+		}
+		load_next();
+
+
 	});
 
 });
