@@ -2,12 +2,12 @@ var pg = require('pg');
 pg.defaults.ssl = true;
 
 var env_var = {
-  db_url: process.env.DATABASE_URL
+  db_uri: process.env.DATABASE_URI
 };
 
 var db_client = null;
 
-pg.connect(env_var.db_url, function(err, client) {
+pg.connect(env_var.db_uri, function(err, client) {
   if (err) throw err;
   console.log('Connected to postgres! Getting schemas');
   db_client = client
@@ -78,6 +78,19 @@ exports.delete_messages_for_channel = (channel_name, success, failure) => {
   var query = db_client.query("DELETE FROM messages WHERE channel_name = $1;", [channel_name]);
   query.on("end", function (result) {
     console.log("Deleted "+result.rowCount+" rows")
+    success(result)
+  }).on("error", function(error) {
+    console.log('delete_messages_for_channel error')
+    console.log(error)
+    if (failure) { failure(error) }
+  });
+
+}
+
+exports.messages_info = (success, failure) => {
+  var query = db_client.query("SELECT channel_name, count(*) message_count FROM messages GROUP BY channel_name ORDER BY channel_name");
+  query.on("end", function (result) {
+    console.log(result)
     success(result)
   }).on("error", function(error) {
     console.log('delete_messages_for_channel error')

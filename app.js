@@ -26,8 +26,9 @@ app.use(bodyParser.json({ type: 'application/vnd.api+json' }));
 
 //Routes
 app.get('/', function(req, res){
-  console.log("got it.")
-  res.send('here!');
+  Db.messages_info(function(result) {
+    res.send(result);
+  });
 });
 
 app.get('/users', function(req, res){
@@ -121,20 +122,17 @@ app.get(/\/load_channel\/(.+)/, function(req, res){
 
 
 app.get(/\/load_all_channels/, function(req, res){
-  var channel_name = req.params[0];
 
   Slack.get_channels_and_users(function(channels, users) {
 
     var results = []
-    channels = Object.values(channels);
+    channels = Object.values(channels).sort();
 
     function load_next() {
       var channel = channels.pop();
       SlackDb.store_new_messages_for_channel(channel, users, function(msg) {
 
-        if (msg) {
-          results.push(msg);
-        }
+        if (msg) { results.push(msg); }
 
         if (channels.length > 0) {
           load_next();
