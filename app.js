@@ -112,7 +112,7 @@ app.get(/\/load_channel\/(.+)/, function(req, res){
     }
 
     SlackDb.store_new_messages_for_channel(channel, users, function(msg) {
-      res.send(msg)
+      res.send(msg || "No new messages for "+channel_name)
     })
 
   });
@@ -132,12 +132,14 @@ app.get(/\/load_all_channels/, function(req, res){
       var channel = channels.pop();
       SlackDb.store_new_messages_for_channel(channel, users, function(msg) {
 
-        results.push(msg);
+        if (msg) {
+          results.push(msg);
+        }
 
         if (channels.length > 0) {
           load_next();
         } else {
-          res.send(results)
+          res.send(results.length > 0 ? results : "No new messages for any channel")
         }
       })
     }
@@ -147,6 +149,17 @@ app.get(/\/load_all_channels/, function(req, res){
   });
 
 });
+
+
+app.get(/\/delete_for_channel\/(.+)/, function(req, res){
+  var channel_name = req.params[0];
+
+  Db.delete_messages_for_channel(channel_name, function(data) {
+    res.send(data);
+  })
+});
+
+
 
 
 //Start Server

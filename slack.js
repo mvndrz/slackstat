@@ -68,31 +68,33 @@ exports.get_channels_and_users = (success, failure) => {
 
 
 exports.get_messages = (channel, oldest_ts, latest_ts, users, success, batch_success) => {
-  var messages = [];
+  var messages_count = 0;
   var batch_size = 100;
   var batch_count = -1;
 
   function get_message_batch() {
+    var params = {
+      token: env_var.slack_token,
+      channel: channel.id,
+      count: batch_size,
+      latest: latest_ts,
+      oldest: oldest_ts
+    }
+
     request.post({
         url: "https://slack.com/api/channels.history",
         json: true,
-        qs: {
-          token: env_var.slack_token,
-          channel: channel.id,
-          count: batch_size,
-          latest: latest_ts,
-          oldest: oldest_ts
-        }
+        qs: params
       },
       function(error, response, body){
         if (body.ok) {
           var batch_messages = [];
 
-          batch_count = batch_count-1;
+          if (batch_count > 0) {
+            batch_count = batch_count-1;
+          }
 
-          if (body.messages.length <= 0) {
-            latest_ts = 0
-          } else {
+          if (body.messages.length > 0) {
             latest_ts = body.messages.last().ts;
 
             body.messages.forEach(function(m) {
@@ -106,11 +108,7 @@ exports.get_messages = (channel, oldest_ts, latest_ts, users, success, batch_suc
               });
             });
 
-            messages = messages.concat(batch_messages)
-
-            console.log(batch_messages.length +
-              " messages retrieved.  Oldest timestamp: "+latest_ts+
-              "  Total: "+messages.length);
+            messages_count += batch_messages.length
 
             if (batch_success) {
               batch_success(batch_messages);
@@ -122,7 +120,7 @@ exports.get_messages = (channel, oldest_ts, latest_ts, users, success, batch_suc
           if (body.has_more && batch_count != 0)  {
             get_message_batch();
           } else {
-            success(messages);
+            success(messages_count);
           }
 
         } else {

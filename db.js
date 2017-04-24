@@ -73,3 +73,16 @@ exports.add_messages = (messages, success, failure) => {
     if (failure) { failure(error) }
   });
 }
+
+exports.delete_messages_for_channel = (channel_name, success, failure) => {
+  var query = db_client.query("DELETE FROM messages WHERE channel_name = $1;", [channel_name]);
+  query.on("end", function (result) {
+    console.log("Deleted "+result.rowCount+" rows")
+    success(result)
+  }).on("error", function(error) {
+    console.log('delete_messages_for_channel error')
+    console.log(error)
+    if (failure) { failure(error) }
+  });
+
+}
