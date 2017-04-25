@@ -1,5 +1,7 @@
 # slackstat
-Run analytics on your team's Slack usage
+*Run analytics on your team's Slack usage.*
+
+A simple node.js server that retrieves data from Slack and blasts it into a Postgres DB.
 
 
 
@@ -24,3 +26,18 @@ Now, to populate your database:  Drive your browser to [http://localhost:5000/lo
 
 ##Connect your analytics tool
 We use [Periscope](https://www.periscopedata.com/), which makes it easy to build great visual dashboards with simple SQL queries.  Plug your tool into your Heroku Postgres DB, and get to analyzing.
+
+
+
+##Supported endpoints
+###[/ (root)](http://localhost:5000/)
+Retrieves per-channel message counts in the database
+
+###[/load_all_channels](http://localhost:5000/load_all_channels)
+Loads new messages from all channels into the database
+
+
+
+
+
+
