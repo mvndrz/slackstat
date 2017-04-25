@@ -6,7 +6,7 @@ A simple node.js server that retrieves data from Slack and blasts it into a Post
 
 
 
-##Get your Slack data
+## Get your Slack data
 
 1. Get the Slackstat code!
 1. Set up a Heroku instance with a Postgres DB
@@ -24,16 +24,16 @@ A simple node.js server that retrieves data from Slack and blasts it into a Post
 
 Now, to populate your database:  Drive your browser to [http://localhost:5000/load_all_channels]().  This will run for a while, but when it is done, you will have all of your message history in your database.  
 
-##Connect your analytics tool
+## Connect your analytics tool
 We use [Periscope](https://www.periscopedata.com/), which makes it easy to build great visual dashboards with simple SQL queries.  Plug your tool into your Heroku Postgres DB, and get to analyzing.
 
 
 
-##Supported endpoints
-###[/ (root)](http://localhost:5000/)
+## Supported endpoints
+### [/ (root)](http://localhost:5000/)
 Retrieves per-channel message counts in the database
 
-###[/load_all_channels](http://localhost:5000/load_all_channels)
+### [/load_all_channels](http://localhost:5000/load_all_channels)
 Loads new messages from all channels into the database
 
 
