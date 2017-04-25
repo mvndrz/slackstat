@@ -11,6 +11,16 @@ const SlackDb = require('./slackdb.js');
 var env_var = {
 };
 
+
+if (!Array.prototype.last){
+    Array.prototype.last = function(){
+        return this[this.length - 1];
+    };
+};
+
+
+
+
 //Server Details
 var app = express();
 var port = process.env.PORT || 3000;
@@ -45,34 +55,9 @@ app.get('/channels', function(req, res){
   });
 });
 
-app.get('/test_add', function(req, res){
-  m = [{
-    user_id: "U4L1234DF",
-    user_name: "Joe Smith",
-    ts: "1491329226.399990",
-    channel_id: "C0BMR1234",
-    channel_name: "build-failures"
-    },
-    {
-    user_id: "U1V04567N",
-    user_name: "Matthew Vanderzee",
-    ts: "1491329182.384970",
-    channel_id: "C0BMR1234",
-    channel_name: "build-failures"
-    }]
-  Db.add_messages( m, function(result) {
-    res.send(result);
-  });
-});
 
 
 
-
-if (!Array.prototype.last){
-    Array.prototype.last = function(){
-        return this[this.length - 1];
-    };
-};
 
 
 app.get(/\/data\/(.+)/, function(req, res){
@@ -88,15 +73,30 @@ app.get(/\/data\/(.+)/, function(req, res){
 app.get(/\/check_messages\/(.+)/, function(req, res){
   var channel_name = req.params[0];
 
-  //
-  // need to avoid callback hell here
-  //
   Slack.get_channels_and_users(function(channels, users) {
     var channel = channels[channel_name]
 
     Slack.get_messages(channel, null, null, users, function(messages) {
       res.send(messages);
     })
+  });
+
+});
+
+
+app.get(/\/get_recent\/(.+)/, function(req, res){
+  var channel_name = req.params[0];
+
+  Slack.get_channels_and_users(function(channels, users) {
+    var channel = channels[channel_name]
+    if (!channel) {
+      res.send("invalid channel '"+channel_name+"'")
+    }
+
+    Slack.get_recent_for_channel(channel, function(data) {
+      res.send(data)
+    })
+
   });
 
 });

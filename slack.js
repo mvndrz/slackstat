@@ -66,6 +66,27 @@ exports.get_channels_and_users = (success, failure) => {
 }
 
 
+exports.get_recent_for_channel = (channel, success) =>  {
+  var params = {
+    token: env_var.slack_token,
+    channel: channel.id,
+    count: 20
+  }
+
+  request.post({
+      url: "https://slack.com/api/channels.history",
+      json: true,
+      qs: params
+    },
+    function(error, response, body){
+      if (body.ok) {
+          success(body);
+      } else {
+        console.log(error);
+      }
+    });  
+}
+
 
 exports.get_messages = (channel, oldest_ts, latest_ts, users, success, batch_success) => {
   var messages_count = 0;

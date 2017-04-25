@@ -30,11 +30,19 @@ We use [Periscope](https://www.periscopedata.com/), which makes it easy to build
 
 
 ## Supported endpoints
-### [/ (root)](http://localhost:5000/)
-Retrieves per-channel message counts in the database
 
-### [/load_all_channels](http://localhost:5000/load_all_channels)
-Loads new messages from all channels into the database
+Endpoint | Usage
+---|---
+**[/ _(root)_](http://localhost:5000/)** | Retrieves per-channel message counts in the database
+**[/users](http://localhost:5000/users)** | Gets JSON of user data
+**[/channels](http://localhost:5000/channels)** | Gets JSON of channel data
+**[/get_recent/CHANNEL](http://localhost:5000/get_recent/general)** | Gets JSON of recent messages for CHANNEL
+**[/load_channel/CHANNEL](http://localhost:5000/load_channel/general)** | Gets new messages for CHANNEL and stores in DB
+**[/load_all_channels](http://localhost:5000/load_all_channels)** | Loads new messages from all channels into the database
+**[/delete_for_channel/CHANNEL](http://localhost:5000/delete_for_channel/general)** | Deletes messages for CHANNEL from the DB _(call **load_channel** to reload)_
+
+
+
 
 
 
