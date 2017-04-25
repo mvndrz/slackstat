@@ -4,19 +4,37 @@
 A simple node.js server that retrieves data from Slack and blasts it into a Postgres DB.
 
 
+## Set up your Heroku app
 
+1. Create a simple (free) app in Heroku
+1. Get the Slackstat code!
+1. Add a Postgres database (might need to pay $9/mo if you have a lot of Slack data)
+1. Log into your DB using the **Heroku CLI** (See the *Database Credentials* section of your Heroku Postgres DB configuration page)
+1. Create the messages table
+  ```
+  create table messages (
+    channel_id varchar(40), 
+    channel_name varchar(40), 
+    user_id varchar(16), 
+    user_name varchar(128), 
+    ts timestamp, 
+    tss varchar(40)
+  );
+  ```
+1. Create a unique index so that there's no duplicates
+  ```
+  create unique index message_channel on messages (channel_id, tss);
+  ```
 
 ## Get your Slack data
 
-1. Get the Slackstat code!
-1. Set up a Heroku instance with a Postgres DB
 1. Create a Slack [Legacy Token](https://api.slack.com/custom-integrations/legacy-tokens) for your app to use
 1. Create a `.env` file in the Slackstat root directory, like so:
   ```
   SLACK_TOKEN=asdf-2309482304928
   DATABASE_URI=postgres://u:pw@domain:port/dir
   ```
-  The database URI can be retrieved from the *Database Credentials* section of your Heroku Postgres DB.
+  The database **URI** can be retrieved from the *Database Credentials* section of your Heroku Postgres DB configuration page.
 1. Run `heroku local web`
 1. Dial your web browser to `http://localhost:5000`
 1. You should see a JSON response in your browser
