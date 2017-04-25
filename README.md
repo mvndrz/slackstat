@@ -1,7 +1,9 @@
 # slackstat
-*Run analytics on your team's Slack usage.*
+**Run analytics on your team's Slack usage.**
 
 A simple node.js server that retrieves data from Slack and blasts it into a Postgres DB.
+
+Though this utilizes Heroku, don't publish your app to the web without further reflection - doing so would make all of your team's Slack messaging available publicly! 
 
 
 ## Set up your Heroku app
