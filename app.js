@@ -3,6 +3,7 @@ var express = require('express');
 var bodyParser = require('body-parser');
 var qs = require('querystring');
 
+const Util = require('./util.js');
 const Slack = require('./slack.js');
 const Db = require('./db.js');
 const SlackDb = require('./slackdb.js');
@@ -12,11 +13,6 @@ var env_var = {
 };
 
 
-if (!Array.prototype.last){
-    Array.prototype.last = function(){
-        return this[this.length - 1];
-    };
-};
 
 
 
@@ -123,23 +119,24 @@ app.get(/\/load_channel\/(.+)/, function(req, res){
 
 app.get(/\/load_all_channels/, function(req, res){
 
-  Slack.get_channels_and_users(function(channels, users) {
+  Slack.get_channels_and_users(function(ch, users) {
 
     var results = []
-    channels = Object.values(channels).sort();
+    var channels = Object.values(ch).sort(function(a,b) {return (a.name > b.name) ? -1 : ((b.name > a.name) ? 1 : 0);} );
 
     function load_next() {
       var channel = channels.pop();
-      SlackDb.store_new_messages_for_channel(channel, users, function(msg) {
 
-        if (msg) { results.push(msg); }
-
-        if (channels.length > 0) {
+      if (channel) {
+        SlackDb.store_new_messages_for_channel(channel, users, function(msg) {
+          if (msg) { results.push(msg); }
           load_next();
-        } else {
-          res.send(results.length > 0 ? results : "No new messages for any channel")
-        }
-      })
+        })
+
+      } else {
+        res.send(results.length > 0 ? results : "No new messages for any channel")
+      }
+
     }
     load_next();
 

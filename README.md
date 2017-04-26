@@ -19,8 +19,9 @@ Though this utilizes Heroku, don't publish your app to the web without further r
     channel_name varchar(40), 
     user_id varchar(16), 
     user_name varchar(128), 
-    ts timestamp, 
-    tss varchar(40)
+    ts timestamp with time zone, 
+    tss varchar(40),
+    extra_data varchar(128)
   );
   ```
 1. Create a unique index so that there's no duplicates

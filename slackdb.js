@@ -19,14 +19,34 @@ function store_messages_from_channel_in_range(channel, min_ts, max_ts, users, su
 
 exports.store_new_messages_for_channel = (channel, users, success, failure) => {
 
+  console.log("store_new_messages_for_channel: "+channel.name)
   Db.get_channel_min_max_tss(channel.id, function(min_ts, max_ts) {
-    store_messages_from_channel_in_range(channel, max_ts, null, users, function(messages_count) {
+
+    function complete_load(m_old, m_new) {
       var str = null
-      if (messages_count>0) {
-        str = channel.name+": loaded "+messages_count+(max_ts ? " after "+max_ts : "");
+      if (m_old && m_new) {
+        str = " - "+channel.name+": loaded "+m_old+" old and "+m_new+" new messages";
         console.log(str)
+      } else if (m_old) {
+        str = " - "+channel.name+": loaded "+m_old+" new messages";
+        console.log(str)
+      } else {
+        console.log(" - "+channel.name+": no new messages")
       }
       success(str)
-    });
+    }
+
+    if (min_ts && max_ts) {
+      store_messages_from_channel_in_range(channel, null, min_ts, users, function(m_old) {
+        store_messages_from_channel_in_range(channel, max_ts, null, users, function(m_new) {
+          complete_load(m_old, m_new)
+        });
+      });
+    } else {
+      store_messages_from_channel_in_range(channel, null, null, users, function(m) {
+        complete_load(m)
+      });
+    }
+
   })
 }

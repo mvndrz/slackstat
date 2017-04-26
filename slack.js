@@ -1,3 +1,4 @@
+const SlackChannelConfig = require('./slack_channel_config.js');
 var request = require('request');
 
 var env_var = {
@@ -24,6 +25,7 @@ exports.get_users = (success,failure) => {
         console.log("Loaded "+body.members.length+" users")
         success(user_hash)
       } else {
+        console.log("get_users error");
         console.log(error);
         failure(error);
       }
@@ -50,6 +52,7 @@ exports.get_channels = (success,failure) => {
         console.log("Loaded "+body.channels.length+" channels")
         success(channels_hash)
       } else {
+        console.log("get_channels error");
         console.log(error);
         failure(error);
       }
@@ -82,9 +85,10 @@ exports.get_recent_for_channel = (channel, success) =>  {
       if (body.ok) {
           success(body);
       } else {
+        console.log("get_recent_for_channel error");
         console.log(error);
       }
-    });  
+    });
 }
 
 
@@ -108,7 +112,7 @@ exports.get_messages = (channel, oldest_ts, latest_ts, users, success, batch_suc
         qs: params
       },
       function(error, response, body){
-        if (body.ok) {
+        if (body && body.ok) {
           var batch_messages = [];
 
           if (batch_count > 0) {
@@ -125,7 +129,8 @@ exports.get_messages = (channel, oldest_ts, latest_ts, users, success, batch_suc
                 user_name: (users[m.user] ? users[m.user].real_name : "unknown"),
                 ts: m.ts,
                 channel_id: channel.id,
-                channel_name: channel.name
+                channel_name: channel.name,
+                extra_data: SlackChannelConfig.get_extra_data_for_channel_message(channel.name, m)
               });
             });
 
@@ -145,6 +150,7 @@ exports.get_messages = (channel, oldest_ts, latest_ts, users, success, batch_suc
           }
 
         } else {
+          console.log("get_messages error");
           console.log(error);
 
         }
