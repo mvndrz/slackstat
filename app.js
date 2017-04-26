@@ -135,6 +135,7 @@ app.get(/\/load_all_channels/, function(req, res){
 
       } else {
         res.send(results.length > 0 ? results : "No new messages for any channel")
+        console.log("load_all_channels complete")
       }
 
     }

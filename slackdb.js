@@ -19,19 +19,16 @@ function store_messages_from_channel_in_range(channel, min_ts, max_ts, users, su
 
 exports.store_new_messages_for_channel = (channel, users, success, failure) => {
 
-  console.log("store_new_messages_for_channel: "+channel.name)
   Db.get_channel_min_max_tss(channel.id, function(min_ts, max_ts) {
+    console.log("loading: "+channel.name)
 
     function complete_load(m_old, m_new) {
       var str = null
-      if (m_old && m_new) {
+      if (m_old || m_new) {
         str = " - "+channel.name+": loaded "+m_old+" old and "+m_new+" new messages";
         console.log(str)
-      } else if (m_old) {
-        str = " - "+channel.name+": loaded "+m_old+" new messages";
-        console.log(str)
       } else {
-        console.log(" - "+channel.name+": no new messages")
+        console.log("       - "+channel.name+": no new messages")
       }
       success(str)
     }

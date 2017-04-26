@@ -98,18 +98,16 @@ exports.get_messages = (channel, oldest_ts, latest_ts, users, success, batch_suc
   var batch_count = -1;
 
   function get_message_batch() {
-    var params = {
-      token: env_var.slack_token,
-      channel: channel.id,
-      count: batch_size,
-      latest: latest_ts,
-      oldest: oldest_ts
-    }
-
     request.post({
         url: "https://slack.com/api/channels.history",
         json: true,
-        qs: params
+        qs: {
+          token: env_var.slack_token,
+          channel: channel.id,
+          count: batch_size,
+          latest: latest_ts,
+          oldest: oldest_ts
+        }
       },
       function(error, response, body){
         if (body && body.ok) {
